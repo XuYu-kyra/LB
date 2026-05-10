@@ -1,156 +1,152 @@
-# Let's购 - 虚拟试衣购物小程序
+# Let's Buy - Virtual Try-On Shopping Mini Program
 
-一个基于OOTDiffusion的虚拟试衣系统，包含微信小程序前端和Python后端服务。
+This project is an AI-powered virtual try-on shopping system built around OOTDiffusion. It includes a WeChat mini-program front end and a Python-based back-end service for generating try-on results.
 
-## 📖 项目简介
+Users can upload a person image and a garment image to preview outfit combinations before purchase.
 
-本项目是一个集成了AI虚拟试衣功能的购物小程序系统。用户可以通过上传人物图片和服装图片，实时生成虚拟试衣效果，帮助用户在购物前预览穿搭效果。
+## Project Overview
 
-### 主要功能
+The system combines shopping functionality with AI-based virtual fitting to help users preview clothing styles in advance.
 
-- **虚拟试衣**: 支持半身和全身虚拟试衣，覆盖上衣、下装、连衣裙等多种服装类型
-- **购物功能**: 商品浏览、购物车管理、订单处理
-- **用户中心**: 个人资料管理、订单查询
-- **Web界面**: 基于Gradio的Web交互界面，方便测试和使用
+### Main Features
 
-## 🏗️ 项目结构
+- Virtual try-on for upper-body and full-body clothing
+- Product browsing and shopping flow
+- Cart and order management
+- User profile and account section
+- Gradio-based web interface for testing and demonstration
 
-```
+## Project Structure
+
+```text
 .
-├── miniprogram/              # 微信小程序前端
-│   ├── pages/               # 页面目录
-│   │   ├── sy/              # 首页
-│   │   ├── xnsy/            # 虚拟试衣页面
-│   │   ├── cart/            # 购物车
-│   │   ├── dd/              # 订单
-│   │   └── me/              # 我的
-│   ├── images/              # 图片资源
-│   └── utils/               # 工具函数
+├── miniprogram/              # WeChat mini-program front end
+│   ├── pages/                # Page directory
+│   │   ├── sy/               # Home page
+│   │   ├── xnsy/             # Virtual try-on page
+│   │   ├── cart/             # Shopping cart
+│   │   ├── dd/               # Orders
+│   │   └── me/               # User center
+│   ├── images/               # Image resources
+│   └── utils/                # Utility functions
 │
-└── tryon/1/                 # 虚拟试衣后端服务
-    ├── ootd/                # OOTDiffusion核心模型
-    │   ├── inference_ootd_hd.py    # 半身试衣推理
-    │   ├── inference_ootd_dc.py    # 全身试衣推理
-    │   └── pipelines_ootd/          # 模型管道
-    ├── preprocess/          # 预处理模块
-    │   ├── openpose/        # 姿态检测
-    │   └── humanparsing/    # 人体解析
-    └── run/                 # 运行脚本
-        ├── gradio_ootd.py   # Gradio Web界面
-        └── run_ootd.py      # 命令行运行脚本
+└── tryon/1/                  # Virtual try-on back-end service
+    ├── ootd/                 # OOTDiffusion core model
+    │   ├── inference_ootd_hd.py
+    │   ├── inference_ootd_dc.py
+    │   └── pipelines_ootd/
+    ├── preprocess/           # Preprocessing modules
+    │   ├── openpose/
+    │   └── humanparsing/
+    └── run/
+        ├── gradio_ootd.py    # Gradio web UI
+        └── run_ootd.py       # CLI script
 ```
 
-## 🛠️ 技术栈
+## Technology Stack
 
-### 后端
-- **深度学习框架**: PyTorch
-- **扩散模型**: OOTDiffusion (Outfit of the Day Diffusion)
-- **姿态检测**: OpenPose
-- **人体解析**: Human Parsing (基于CE2P)
-- **Web框架**: Gradio
-- **图像处理**: PIL, OpenCV
+### Back End
 
-### 前端
-- **小程序框架**: 微信小程序原生框架
-- **开发工具**: 微信开发者工具
+- PyTorch
+- OOTDiffusion
+- OpenPose
+- Human Parsing
+- Gradio
+- PIL and OpenCV
 
-## 📋 功能特性
+### Front End
 
-### 虚拟试衣模型
+- Native WeChat mini-program framework
+- WeChat Developer Tools
 
-1. **半身模式 (HD)**
-   - 支持上半身服装试穿
-   - 高分辨率输出 (768x1024)
-   - 快速生成效果
+## Functional Highlights
 
-2. **全身模式 (DC)**
-   - 支持上半身、下半身、连衣裙
-   - 支持多种服装类型组合
-   - 更精细的人体姿态适配
+### Virtual Try-On Modes
 
-### 小程序功能
+1. Half-body mode
+   - Focused on upper-body try-on
+   - High-resolution output
+   - Fast generation
 
-- 🏠 **首页**: 商品展示、分类浏览
-- 👕 **虚拟试衣**: AI试衣功能集成
-- 🛒 **购物车**: 商品管理、结算
-- 📦 **订单**: 订单查询、状态跟踪
-- 👤 **个人中心**: 用户信息管理
+2. Full-body mode
+   - Supports tops, bottoms, and dresses
+   - Better pose adaptation
+   - More flexible clothing combinations
 
+### Mini Program Features
 
-## 📝 使用示例
+- Home page for product browsing
+- AI virtual try-on page
+- Shopping cart
+- Order tracking
+- User center
 
-### Web界面使用
+## Usage
 
-1. 启动Gradio服务
-2. 选择人物图片和服装图片
-3. 选择模型类型 (半身/全身)
-4. 调整参数 (步数、引导尺度等)
-5. 点击生成按钮
+### Web Interface
 
-### 小程序使用
+1. Start the Gradio service
+2. Select a person image and a garment image
+3. Choose the model mode
+4. Adjust generation settings
+5. Run inference and review the result
 
-1. 进入"虚拟试衣"页面
-2. 上传人物照片
-3. 选择或上传服装图片
-4. 等待AI处理
-5. 查看试衣效果
+### Mini Program
 
-## ⚙️ 模型配置
+1. Open the virtual try-on page
+2. Upload a person image
+3. Select or upload a clothing image
+4. Wait for AI processing
+5. Review the generated try-on result
 
-### 需要的模型文件
+## Model Setup
 
-项目需要以下预训练模型，请自行下载到对应目录:
+You need to download the required pretrained checkpoints manually, including:
 
-- OOTDiffusion模型权重: `checkpoint/ootd/`
-- CLIP模型: `checkpoint/clip-vit-large-patch14/`
-- VAE模型: `checkpoint/ootd/`
-- OpenPose模型权重
-- Human Parsing模型权重
+- OOTDiffusion weights in `checkpoint/ootd/`
+- CLIP model in `checkpoint/clip-vit-large-patch14/`
+- VAE model files
+- OpenPose checkpoints
+- Human Parsing checkpoints
 
-### 模型参数
+### Recommended Settings
 
-- **输入尺寸**: 768x1024
-- **输出尺寸**: 768x1024
-- **推理步数**: 20-40步
-- **引导尺度**: 1.0-5.0
+- Input size: `768x1024`
+- Output size: `768x1024`
+- Inference steps: `20-40`
+- Guidance scale: `1.0-5.0`
 
-## 📊 性能优化
+## Performance Notes
 
-- 使用GPU加速推理
-- 可调整推理步数平衡速度和质量
-- 批量生成支持
+- GPU acceleration is strongly recommended
+- You can balance speed and quality by adjusting inference steps
+- Batch generation can be added for larger workloads
 
-## 🔧 常见问题
+## Common Issues
 
-1. **内存不足**
-   - 减少生成样本数 (`--sample`)
-   - 降低输入图片分辨率
+1. Out-of-memory errors
+   - Reduce the number of samples
+   - Lower the input resolution
 
-2. **生成质量不佳**
-   - 增加推理步数 (`--step`)
-   - 调整引导尺度 (`--scale`)
-   - 确保输入图片质量良好
+2. Unsatisfactory output quality
+   - Increase the number of inference steps
+   - Adjust the guidance scale
+   - Use clearer input images
 
-3. **小程序无法连接后端**
-   - 检查后端服务是否启动
-   - 配置正确的API地址
+3. Mini program cannot reach the back end
+   - Check whether the service is running
+   - Verify the configured API endpoint
 
-## 📄 许可证
+## License
 
-本项目仅供学习和研究使用。
+This project is intended for learning and research purposes only.
 
+## References
 
-## 📚 相关资源
+- [OOTDiffusion paper](https://arxiv.org/abs/2308.07269)
+- [Gradio documentation](https://gradio.app/docs/)
+- [WeChat Mini Program documentation](https://developers.weixin.qq.com/miniprogram/dev/framework/)
 
-- [OOTDiffusion论文](https://arxiv.org/abs/2308.07269)
-- [Gradio文档](https://gradio.app/docs/)
-- [微信小程序开发文档](https://developers.weixin.qq.com/miniprogram/dev/framework/)
+## Contact
 
-## 📞 联系方式
-
-如有问题或建议，欢迎提交Issue或Pull Request。
-
----
-
-**注意**: 本项目为期末作业项目，部分功能可能需要根据实际需求进行调整和完善。
-
+Issues and pull requests are welcome for improvements and bug fixes.

@@ -1,57 +1,91 @@
-# Let’s Buy — Virtual Try-On Shopping Mini Program
+# Let's Buy — Virtual Try-On Shopping Prototype
 
-[English](#english) · [中文](#中文)
+[English](#english) · [中文](#中文) · [Demo video](演示视频.mp4) · [OOTDiffusion upstream](https://github.com/levihsu/OOTDiffusion)
+
+**Tech stack:** WeChat Mini Program · Python · PyTorch · Diffusers · Gradio · OpenPose · human parsing · OOTDiffusion
 
 ## English
 
-Let’s Buy is an AI-assisted shopping prototype that connects a WeChat mini-program experience to a Python virtual try-on service built around OOTDiffusion. A user can browse products, upload a person image and a garment image, and preview a generated outfit before deciding what to buy.
+Let's Buy explores how a virtual try-on model can fit into a shopping journey: select a person and garment image, wait for GPU inference, inspect the generated outfit, and return to product, cart, order, and account flows.
 
-### The product story
+> **Ownership note:** OOTDiffusion is an upstream research project. The model architecture, inference pipelines, and most preprocessing code under `tryon/1/` are not presented as my original model work. My project contribution is the product/integration layer around that stack: shaping inputs and outputs into a try-on flow, connecting it to the mini-program concept, and preparing the end-to-end demonstration.
 
-The interesting problem is not only image generation. A useful try-on demo has to connect a heavy vision model to a complete shopping journey: product discovery, upload states, inference progress, result display, cart, orders, and user centre. I treated the project as an integration problem and kept the model service and consumer-facing flow explicit.
+### Demo first
 
-### What I built and integrated
+The repository includes a checked-in [MP4 demonstration](演示视频.mp4). It is the clearest record of the intended user flow and current prototype behaviour.
 
-- A native WeChat mini-program with home/product browsing, try-on, cart, order, and user-centre pages.
-- A Python inference service exposing OOTDiffusion pipelines for half-body and full-body try-on modes.
-- Pre-processing components for pose estimation, human parsing, image resizing, and garment/person preparation.
-- A Gradio interface and CLI entry points for repeatable local model experiments.
-- Clear separation between front-end interaction state and GPU-heavy back-end inference, making the prototype easier to demo and extend.
-
-### Architecture
+### Product and inference flow
 
 ```text
-WeChat mini-program
-  -> upload person + garment -> try-on request
-  -> Python/OOTDiffusion service
-  -> pose + human parsing + diffusion inference
-  -> generated preview -> product/cart/order flow
+shopping UI
+  -> choose/upload person + garment images
+  -> select half-body or full-body mode
+  -> pose estimation + human parsing + mask preparation
+  -> OOTDiffusion inference
+  -> generated preview
+  -> continue browsing/cart/order flow
 ```
 
-### Local model setup
+### What I integrated
 
-The repository does not bundle large checkpoints. Prepare the required OOTDiffusion, CLIP/VAE, OpenPose, and human-parsing weights under the paths expected by `tryon/1/`, then use the Gradio or CLI runner. A GPU is strongly recommended; start with `768x1024` inputs and 20–40 inference steps, then tune for available memory and latency.
+- A shopping experience organised around home/product browsing, virtual try-on, cart, order, and user-centre states.
+- Person/garment input preparation and the interaction contract around a GPU-heavy inference step.
+- OOTDiffusion's half-body (`hd`) and full-body/category-aware (`dc`) runners.
+- Gradio and command-line entry points for repeatable local experiments.
+- Demo assets that show the model result in the context of a consumer workflow rather than as an isolated notebook output.
 
-This is a learning/research prototype. Production work would add authenticated storage, image retention controls, queueing, model observability, abuse prevention, and a clearer licence for model checkpoints and generated content.
+### Repository map and current checkout status
+
+| Path | What it contains | Ownership/status |
+| --- | --- | --- |
+| `tryon/1/ootd/` | OOTDiffusion inference and pipeline code | Upstream model code |
+| `tryon/1/preprocess/` | OpenPose and human-parsing dependencies | Upstream/vendored components |
+| `tryon/1/run/` | Gradio and CLI runners plus example inputs | Upstream runner adapted for the prototype context |
+| `miniprogram (2)/miniprogram` | Gitlink to the mini-program snapshot | The repository is missing `.gitmodules`, so a fresh clone cannot resolve this link automatically |
+| `演示视频.mp4` | Product demonstration | Viewable directly from this repository |
+
+### Running the model side
+
+The repository does not include the large model checkpoints or a complete environment lockfile. Prepare the OOTDiffusion, CLIP/VAE, OpenPose, and human-parsing weights expected by `tryon/1/`, then run either:
+
+```bash
+cd tryon/1
+python run/gradio_ootd.py
+
+# or a single CLI inference
+python run/run_ootd.py --model_path PERSON.jpg --cloth_path GARMENT.jpg --model_type hd
+```
+
+A CUDA-capable GPU is strongly recommended. The runners use 768×1024 inputs and expose 20–40 inference steps in the Gradio UI.
+
+### What is and is not demonstrated
+
+The video and checked-in runner show the intended try-on experience and local inference path. The current repository does **not** preserve a complete deployable API bridge between the mini-program and inference process, and the unresolved gitlink prevents a clean checkout of the front end. Those repository gaps should be fixed before presenting this as a production-ready system.
 
 ## 中文
 
-Let’s Buy 是一个 AI 虚拟试衣购物原型：前端是微信小程序，后端是基于 OOTDiffusion 的 Python 推理服务。用户可以浏览商品，上传人物图和服装图，在购买前预览生成的穿搭效果。
+Let's Buy 探索的是如何把虚拟试衣模型放进完整购物流程：选择人物图和服装图，等待 GPU 推理，查看生成穿搭，再回到商品、购物车、订单和个人中心。
 
-### 项目故事
+> **署名说明：** OOTDiffusion 是上游研究项目。`tryon/1/` 中的模型架构、推理 pipeline 和大部分预处理代码不属于我的原创模型实现。我的项目工作集中在产品与集成层：定义试衣输入输出流程、把模型能力放进小程序购物场景，并完成端到端演示。
 
-虚拟试衣的难点不只是“把图片生成出来”，还在于如何把一个重量级视觉模型接入完整的购物流程：商品浏览、上传状态、推理等待、结果展示、购物车、订单和个人中心。我把它当成一次端到端产品集成，明确拆开小程序交互层和 GPU 推理层。
+### 演示
 
-### 我的主导工作
+仓库中保留了 [MP4 演示视频](演示视频.mp4)，它是当前用户流程和原型效果最直接的证据。
 
-- 实现微信小程序首页/商品浏览、虚拟试衣、购物车、订单和个人中心页面；
-- 集成 OOTDiffusion 的半身与全身试衣 pipeline，并提供 Gradio 与 CLI 入口；
-- 串接姿态估计、人体解析、图像预处理和服装/人物输入准备；
-- 让前端交互状态与后端 GPU 推理解耦，便于演示、调参和后续扩展；
-- 组织从“选择服装”到“生成预览”再回到购物流程的完整用户路径。
+### 我的集成工作
 
-### 运行提示
+- 围绕首页/商品浏览、虚拟试衣、购物车、订单和个人中心组织购物体验；
+- 处理人物图与服装图的输入准备，以及 GPU 推理期间的交互状态；
+- 接入 OOTDiffusion 的半身和全身/服装类别推理入口；
+- 保留 Gradio 与命令行运行方式，方便本地重复实验；
+- 用演示素材把模型输出放回消费场景，而不是只展示离线 notebook 结果。
 
-仓库不包含大型 checkpoint。请按 `tryon/1/` 的路径准备 OOTDiffusion、CLIP/VAE、OpenPose 和 human parsing 权重，再启动 Gradio 或命令行 runner。建议使用 GPU，从 `768x1024`、20–40 steps 开始，根据显存和延迟调整。
+### 仓库现状
 
-这是学习/研究原型；若继续产品化，还需要补充鉴权存储、图片留存策略、任务队列、模型监控、滥用防护，以及 checkpoint 和生成内容的许可证说明。
+`tryon/1/ootd/` 和 `tryon/1/preprocess/` 主要是上游模型及依赖；`tryon/1/run/` 提供 Gradio/CLI 入口。`miniprogram (2)/miniprogram` 当前是一个 gitlink，但仓库缺少 `.gitmodules`，所以新用户无法通过普通 clone 自动取得小程序源码。演示视频可以直接查看，但仓库目前没有保留完整、可部署的小程序到推理服务 API 桥接。
+
+### 运行与边界
+
+仓库不包含大型 checkpoint，也没有完整锁定的运行环境。准备好 OOTDiffusion、CLIP/VAE、OpenPose 和 human-parsing 权重后，可按上面的命令启动 Gradio 或 CLI；建议使用 CUDA GPU。
+
+这是学习/研究型集成原型，不应描述为自研虚拟试衣模型或生产系统。若继续完善，应补回可解析的小程序来源、明确前后端 API、锁定依赖，并补充图片留存、队列、监控和许可证说明。

@@ -1,152 +1,57 @@
-# Let's Buy - Virtual Try-On Shopping Mini Program
+# Let’s Buy — Virtual Try-On Shopping Mini Program
 
-This project is an AI-powered virtual try-on shopping system built around OOTDiffusion. It includes a WeChat mini-program front end and a Python-based back-end service for generating try-on results.
+[English](#english) · [中文](#中文)
 
-Users can upload a person image and a garment image to preview outfit combinations before purchase.
+## English
 
-## Project Overview
+Let’s Buy is an AI-assisted shopping prototype that connects a WeChat mini-program experience to a Python virtual try-on service built around OOTDiffusion. A user can browse products, upload a person image and a garment image, and preview a generated outfit before deciding what to buy.
 
-The system combines shopping functionality with AI-based virtual fitting to help users preview clothing styles in advance.
+### The product story
 
-### Main Features
+The interesting problem is not only image generation. A useful try-on demo has to connect a heavy vision model to a complete shopping journey: product discovery, upload states, inference progress, result display, cart, orders, and user centre. I treated the project as an integration problem and kept the model service and consumer-facing flow explicit.
 
-- Virtual try-on for upper-body and full-body clothing
-- Product browsing and shopping flow
-- Cart and order management
-- User profile and account section
-- Gradio-based web interface for testing and demonstration
+### What I built and integrated
 
-## Project Structure
+- A native WeChat mini-program with home/product browsing, try-on, cart, order, and user-centre pages.
+- A Python inference service exposing OOTDiffusion pipelines for half-body and full-body try-on modes.
+- Pre-processing components for pose estimation, human parsing, image resizing, and garment/person preparation.
+- A Gradio interface and CLI entry points for repeatable local model experiments.
+- Clear separation between front-end interaction state and GPU-heavy back-end inference, making the prototype easier to demo and extend.
+
+### Architecture
 
 ```text
-.
-├── miniprogram/              # WeChat mini-program front end
-│   ├── pages/                # Page directory
-│   │   ├── sy/               # Home page
-│   │   ├── xnsy/             # Virtual try-on page
-│   │   ├── cart/             # Shopping cart
-│   │   ├── dd/               # Orders
-│   │   └── me/               # User center
-│   ├── images/               # Image resources
-│   └── utils/                # Utility functions
-│
-└── tryon/1/                  # Virtual try-on back-end service
-    ├── ootd/                 # OOTDiffusion core model
-    │   ├── inference_ootd_hd.py
-    │   ├── inference_ootd_dc.py
-    │   └── pipelines_ootd/
-    ├── preprocess/           # Preprocessing modules
-    │   ├── openpose/
-    │   └── humanparsing/
-    └── run/
-        ├── gradio_ootd.py    # Gradio web UI
-        └── run_ootd.py       # CLI script
+WeChat mini-program
+  -> upload person + garment -> try-on request
+  -> Python/OOTDiffusion service
+  -> pose + human parsing + diffusion inference
+  -> generated preview -> product/cart/order flow
 ```
 
-## Technology Stack
+### Local model setup
 
-### Back End
+The repository does not bundle large checkpoints. Prepare the required OOTDiffusion, CLIP/VAE, OpenPose, and human-parsing weights under the paths expected by `tryon/1/`, then use the Gradio or CLI runner. A GPU is strongly recommended; start with `768x1024` inputs and 20–40 inference steps, then tune for available memory and latency.
 
-- PyTorch
-- OOTDiffusion
-- OpenPose
-- Human Parsing
-- Gradio
-- PIL and OpenCV
+This is a learning/research prototype. Production work would add authenticated storage, image retention controls, queueing, model observability, abuse prevention, and a clearer licence for model checkpoints and generated content.
 
-### Front End
+## 中文
 
-- Native WeChat mini-program framework
-- WeChat Developer Tools
+Let’s Buy 是一个 AI 虚拟试衣购物原型：前端是微信小程序，后端是基于 OOTDiffusion 的 Python 推理服务。用户可以浏览商品，上传人物图和服装图，在购买前预览生成的穿搭效果。
 
-## Functional Highlights
+### 项目故事
 
-### Virtual Try-On Modes
+虚拟试衣的难点不只是“把图片生成出来”，还在于如何把一个重量级视觉模型接入完整的购物流程：商品浏览、上传状态、推理等待、结果展示、购物车、订单和个人中心。我把它当成一次端到端产品集成，明确拆开小程序交互层和 GPU 推理层。
 
-1. Half-body mode
-   - Focused on upper-body try-on
-   - High-resolution output
-   - Fast generation
+### 我的主导工作
 
-2. Full-body mode
-   - Supports tops, bottoms, and dresses
-   - Better pose adaptation
-   - More flexible clothing combinations
+- 实现微信小程序首页/商品浏览、虚拟试衣、购物车、订单和个人中心页面；
+- 集成 OOTDiffusion 的半身与全身试衣 pipeline，并提供 Gradio 与 CLI 入口；
+- 串接姿态估计、人体解析、图像预处理和服装/人物输入准备；
+- 让前端交互状态与后端 GPU 推理解耦，便于演示、调参和后续扩展；
+- 组织从“选择服装”到“生成预览”再回到购物流程的完整用户路径。
 
-### Mini Program Features
+### 运行提示
 
-- Home page for product browsing
-- AI virtual try-on page
-- Shopping cart
-- Order tracking
-- User center
+仓库不包含大型 checkpoint。请按 `tryon/1/` 的路径准备 OOTDiffusion、CLIP/VAE、OpenPose 和 human parsing 权重，再启动 Gradio 或命令行 runner。建议使用 GPU，从 `768x1024`、20–40 steps 开始，根据显存和延迟调整。
 
-## Usage
-
-### Web Interface
-
-1. Start the Gradio service
-2. Select a person image and a garment image
-3. Choose the model mode
-4. Adjust generation settings
-5. Run inference and review the result
-
-### Mini Program
-
-1. Open the virtual try-on page
-2. Upload a person image
-3. Select or upload a clothing image
-4. Wait for AI processing
-5. Review the generated try-on result
-
-## Model Setup
-
-You need to download the required pretrained checkpoints manually, including:
-
-- OOTDiffusion weights in `checkpoint/ootd/`
-- CLIP model in `checkpoint/clip-vit-large-patch14/`
-- VAE model files
-- OpenPose checkpoints
-- Human Parsing checkpoints
-
-### Recommended Settings
-
-- Input size: `768x1024`
-- Output size: `768x1024`
-- Inference steps: `20-40`
-- Guidance scale: `1.0-5.0`
-
-## Performance Notes
-
-- GPU acceleration is strongly recommended
-- You can balance speed and quality by adjusting inference steps
-- Batch generation can be added for larger workloads
-
-## Common Issues
-
-1. Out-of-memory errors
-   - Reduce the number of samples
-   - Lower the input resolution
-
-2. Unsatisfactory output quality
-   - Increase the number of inference steps
-   - Adjust the guidance scale
-   - Use clearer input images
-
-3. Mini program cannot reach the back end
-   - Check whether the service is running
-   - Verify the configured API endpoint
-
-## License
-
-This project is intended for learning and research purposes only.
-
-## References
-
-- [OOTDiffusion paper](https://arxiv.org/abs/2308.07269)
-- [Gradio documentation](https://gradio.app/docs/)
-- [WeChat Mini Program documentation](https://developers.weixin.qq.com/miniprogram/dev/framework/)
-
-## Contact
-
-Issues and pull requests are welcome for improvements and bug fixes.
+这是学习/研究原型；若继续产品化，还需要补充鉴权存储、图片留存策略、任务队列、模型监控、滥用防护，以及 checkpoint 和生成内容的许可证说明。
